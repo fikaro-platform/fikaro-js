@@ -1,0 +1,56 @@
+{
+  "name": "@fikaro/client",
+  "version": "0.1.0",
+  "description": "Official JavaScript/TypeScript client for Fikaro — an Iranian backend-as-a-service. Auto-generated REST API, PostgreSQL, and end-user auth without writing a backend.",
+  "keywords": [
+    "fikaro",
+    "backend",
+    "baas",
+    "backend-as-a-service",
+    "api",
+    "postgresql",
+    "authentication",
+    "no-code",
+    "iran",
+    "typescript"
+  ],
+  "homepage": "https://fikaro.ir",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fikaro-platform/fikaro-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fikaro-platform/fikaro-js/issues"
+  },
+  "license": "MIT",
+  "author": "Fikaro <support@fikaro.ir> (https://fikaro.ir)",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
