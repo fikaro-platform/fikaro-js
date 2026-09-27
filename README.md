@@ -103,7 +103,8 @@ client.auth.session;          // { user, accessToken, refreshToken, expiresAt }
 
 const me = await client.auth.me();
 await client.auth.changePassword("old", "new");
-await client.auth.requestPasswordReset("user@example.com");
+await client.auth.requestPasswordReset("user@example.com"); // emails a reset link
+await client.auth.resetPassword(tokenFromTheLink, "new password");
 await client.auth.logout();
 ```
 

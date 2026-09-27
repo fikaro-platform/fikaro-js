@@ -1,6 +1,6 @@
 {
   "name": "@fikaro/client",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official JavaScript/TypeScript client for Fikaro — an Iranian backend-as-a-service. Auto-generated REST API, PostgreSQL, and end-user auth without writing a backend.",
   "keywords": [
     "fikaro",

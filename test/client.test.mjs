@@ -239,6 +239,17 @@ test("logout clears the session even when the server call fails", async () => {
   assert.equal(client.auth.session, null, "local session must be gone regardless");
 });
 
+test("password reset: the link request goes to /forgot, the new password to /reset", async () => {
+  const { fn, calls } = mockFetch(() => json({ sent: true }));
+  const client = createClient({ project: "p", key: "apck_pub_x", fetch: fn });
+  await client.auth.requestPasswordReset("a@b.co");
+  await client.auth.resetPassword("tok", "new-password");
+  assert.match(calls[0].url, /\/p\/v1\/auth\/password\/forgot$/);
+  assert.deepEqual(JSON.parse(calls[0].body), { email: "a@b.co" });
+  assert.match(calls[1].url, /\/p\/v1\/auth\/password\/reset$/);
+  assert.deepEqual(JSON.parse(calls[1].body), { token: "tok", new_password: "new-password" });
+});
+
 test("ids are URL-encoded", async () => {
   const { fn, calls } = mockFetch(() => json({ id: "a/b" }));
   const client = createClient({ project: "p", fetch: fn });

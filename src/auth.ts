@@ -100,8 +100,21 @@ export class Auth {
    * registered — the server refuses to reveal which, and so does this.
    */
   requestPasswordReset(email: string): Promise<void> {
-    return this.transport.request<void>("POST", "/auth/password/reset", {
+    // /auth/password/forgot sends the link; /auth/password/reset is the step
+    // after it (resetPassword below). 0.1.0 posted here to the wrong one.
+    return this.transport.request<void>("POST", "/auth/password/forgot", {
       body: { email },
+      auth: false,
+    });
+  }
+
+  /**
+   * Finishes a reset: the token from the emailed link, and the new password.
+   * The user is not signed in by this — call login() with the new password.
+   */
+  resetPassword(token: string, newPassword: string): Promise<void> {
+    return this.transport.request<void>("POST", "/auth/password/reset", {
+      body: { token, new_password: newPassword },
       auth: false,
     });
   }
