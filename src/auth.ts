@@ -35,8 +35,8 @@ export class Auth {
     return Number.isNaN(expiry) ? true : expiry - 30_000 > Date.now();
   }
 
-  private async store(raw: Record<string, unknown>): Promise<AuthSession> {
-    const session = toSession(raw);
+  private async store(raw: Record<string, unknown>, previous?: AuthSession | null): Promise<AuthSession> {
+    const session = toSession(raw, previous);
     this.onSession(session);
     return session;
   }
@@ -68,6 +68,7 @@ export class Auth {
         body: { refresh_token: current.refreshToken },
         auth: false,
       }),
+      current,
     );
   }
 

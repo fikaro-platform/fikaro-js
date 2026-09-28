@@ -125,6 +125,22 @@ test("refreshes once on 401 and replays the request", async () => {
   assert.equal(client.auth.session.accessToken, "new");
 });
 
+test("a refresh answered without a user keeps the signed-in user", async () => {
+  // API servers before 2026-09-28 sent only the token pair from /auth/refresh,
+  // and session.user went undefined an hour after sign-in.
+  const { fn } = mockFetch((url) =>
+    url.endsWith("/auth/login")
+      ? json({ user: { id: "u", email: "sara@example.com" }, access_token: "a1", refresh_token: "r1", expires_at: "2030-01-01T00:00:00Z" })
+      : json({ access_token: "a2", refresh_token: "r2", expires_at: "2030-01-01T01:00:00Z" }),
+  );
+  const client = createClient({ project: "p", fetch: fn });
+  await client.auth.login("sara@example.com", "pw");
+  await client.auth.refresh();
+
+  assert.equal(client.auth.session.accessToken, "a2");
+  assert.equal(client.auth.session.user.email, "sara@example.com");
+});
+
 test("concurrent 401s share a single refresh", async () => {
   let refreshes = 0;
   const { fn } = mockFetch((url, init) => {

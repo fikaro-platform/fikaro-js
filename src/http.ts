@@ -110,7 +110,7 @@ export class Transport {
         "/auth/refresh",
         { body: { refresh_token: current.refreshToken }, auth: false, retry: false },
       );
-      const session = toSession(raw);
+      const session = toSession(raw, current);
       this.cfg.onSession(session);
       return session;
     } catch {
@@ -122,10 +122,16 @@ export class Transport {
   }
 }
 
-/** Maps the server's snake_case auth payload onto the SDK's camelCase shape. */
-export function toSession(raw: Record<string, unknown>): AuthSession {
+/**
+ * Maps the server's snake_case auth payload onto the SDK's camelCase shape.
+ *
+ * `previous` covers a refresh answered without a user — the API only started
+ * returning one there in 2026-09 — so the signed-in user never goes missing
+ * from `session` an hour after sign-in.
+ */
+export function toSession(raw: Record<string, unknown>, previous?: AuthSession | null): AuthSession {
   return {
-    user: raw.user as AuthSession["user"],
+    user: (raw.user ?? previous?.user) as AuthSession["user"],
     accessToken: raw.access_token as string,
     refreshToken: raw.refresh_token as string,
     expiresAt: raw.expires_at as string,
