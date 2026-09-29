@@ -59,6 +59,31 @@ export class Auth {
     );
   }
 
+  /**
+   * Texts a one-time code to a mobile number. The number may be written
+   * 09121234567, +989121234567 or in Persian digits; the server normalises it.
+   * Resolves with nothing — the code arrives by SMS, never in the response.
+   */
+  sendCode(mobile: string): Promise<void> {
+    return this.transport.request<void>("POST", "/auth/otp/send", {
+      body: { mobile },
+      auth: false,
+    });
+  }
+
+  /**
+   * Signs in with the texted code, creating the account on first use, and
+   * stores the session like login() does.
+   */
+  async verifyCode(mobile: string, code: string): Promise<AuthSession> {
+    return this.store(
+      await this.transport.request<Record<string, unknown>>("POST", "/auth/otp/verify", {
+        body: { mobile, code },
+        auth: false,
+      }),
+    );
+  }
+
   /** Usually unnecessary — the SDK refreshes on its own after a 401. */
   async refresh(): Promise<AuthSession> {
     const current = this.storage.get();

@@ -141,6 +141,23 @@ test("a refresh answered without a user keeps the signed-in user", async () => {
   assert.equal(client.auth.session.user.email, "sara@example.com");
 });
 
+test("sign-in by SMS code: send, then verify stores the session", async () => {
+  const { fn, calls } = mockFetch((url) =>
+    url.endsWith("/auth/otp/send")
+      ? new Response(null, { status: 204 })
+      : json({ user: { id: "u", mobile: "+989121234567" }, access_token: "a1", refresh_token: "r1", expires_at: "2030-01-01T00:00:00Z" }),
+  );
+  const client = createClient({ project: "p", key: "apck_pub_x", fetch: fn });
+  await client.auth.sendCode("09121234567");
+  await client.auth.verifyCode("09121234567", "123456");
+
+  assert.ok(calls[0].url.endsWith("/p/v1/auth/otp/send"));
+  assert.deepEqual(JSON.parse(calls[0].body), { mobile: "09121234567" });
+  assert.deepEqual(JSON.parse(calls[1].body), { mobile: "09121234567", code: "123456" });
+  assert.equal(client.auth.session.accessToken, "a1");
+  assert.equal(client.auth.session.user.mobile, "+989121234567");
+});
+
 test("concurrent 401s share a single refresh", async () => {
   let refreshes = 0;
   const { fn } = mockFetch((url, init) => {

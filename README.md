@@ -106,6 +106,10 @@ await client.auth.changePassword("old", "new");
 await client.auth.requestPasswordReset("user@example.com"); // emails a reset link
 await client.auth.resetPassword(tokenFromTheLink, "new password");
 await client.auth.logout();
+
+// Or by mobile number and a texted code (the account is created on first use):
+await client.auth.sendCode("09121234567");
+await client.auth.verifyCode("09121234567", "123456");
 ```
 
 Expired access tokens are refreshed automatically: a 401 triggers one refresh and the original request is replayed. Concurrent requests share a single refresh, because refresh tokens rotate and a second parallel attempt would fail.
