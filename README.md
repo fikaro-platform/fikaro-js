@@ -69,6 +69,15 @@ await products.list({
 
 Operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `like`, `in`.
 
+### Search
+
+Fields marked «قابل جستجو» in the panel are searchable, with Persian spelling
+variants (ی/ي، ک/ك، نیم‌فاصله) and partial words matched:
+
+```ts
+await products.list({ search: "قوری", sort: "price" });
+```
+
 ### Pagination
 
 Pagination is cursor-based rather than page numbers, so inserts during a listing cannot make a page repeat or skip records.

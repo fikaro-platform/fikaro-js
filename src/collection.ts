@@ -38,6 +38,7 @@ export class Collection<T extends Entity = Entity> {
     if (opts.limit !== undefined) q.append("limit", String(opts.limit));
     if (opts.cursor) q.append("cursor", opts.cursor);
     if (opts.include?.length) q.append("include", opts.include.join(","));
+    if (opts.search?.trim()) q.append("search", opts.search.trim());
     return q;
   }
 

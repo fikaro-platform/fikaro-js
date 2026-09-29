@@ -293,3 +293,14 @@ test("ids are URL-encoded", async () => {
 test("project is required", () => {
   assert.throws(() => createClient({ project: "" }), /project/);
 });
+
+test("search is sent as ?search= and blank search is left out", async () => {
+  const { fn, calls } = mockFetch(() => json({ data: [], pagination: { limit: 20, nextCursor: null } }));
+  const client = createClient({ project: "p", key: "k", fetch: fn });
+  await client.from("product").list({ search: " قوری ", sort: "price" });
+  await client.from("product").list({ search: "  " });
+  const u = new URL(calls[0].url);
+  assert.equal(u.searchParams.get("search"), "قوری");
+  assert.equal(u.searchParams.get("sort"), "price");
+  assert.equal(new URL(calls[1].url).searchParams.has("search"), false);
+});

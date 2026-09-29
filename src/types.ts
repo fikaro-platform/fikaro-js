@@ -31,6 +31,11 @@ export interface ListOptions {
   cursor?: string;
   /** Relations to embed, e.g. `["category"]`. */
   include?: string[];
+  /**
+   * Text search over the fields marked «قابل جستجو» in the panel. Persian
+   * spelling variants (ی/ي، ک/ك، نیم‌فاصله) and partial words match.
+   */
+  search?: string;
 }
 
 /**
