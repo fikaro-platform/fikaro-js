@@ -115,10 +115,22 @@ export class Auth {
     }
   }
 
-  changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    return this.transport.request<void>("POST", "/auth/password", {
-      body: { current_password: currentPassword, new_password: newPassword },
-    });
+  /**
+   * Changes the signed-in user's password and keeps them signed in.
+   *
+   * The server signs out every session on a password change — this one too —
+   * and answers with a fresh token pair. 0.1.0 dropped that pair, so the
+   * stored refresh token was already revoked and the user fell out of the app
+   * when the access token expired, up to an hour later.
+   */
+  async changePassword(currentPassword: string, newPassword: string): Promise<AuthSession> {
+    const current = this.storage.get();
+    return this.store(
+      await this.transport.request<Record<string, unknown>>("POST", "/auth/password", {
+        body: { current_password: currentPassword, new_password: newPassword },
+      }),
+      current,
+    );
   }
 
   /**

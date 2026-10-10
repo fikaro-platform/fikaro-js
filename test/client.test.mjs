@@ -141,6 +141,27 @@ test("a refresh answered without a user keeps the signed-in user", async () => {
   assert.equal(client.auth.session.user.email, "sara@example.com");
 });
 
+test("a password change stores the new pair and keeps the user", async () => {
+  // The change revokes every earlier session, so the pair it returns is the
+  // only one that still works; /auth/password sends no user.
+  const { fn, calls } = mockFetch((url) =>
+    url.endsWith("/auth/login")
+      ? json({ user: { id: "u", email: "sara@example.com" }, access_token: "a1", refresh_token: "r1", expires_at: "2030-01-01T00:00:00Z" })
+      : json({ access_token: "a2", refresh_token: "r2", expires_at: "2030-01-01T01:00:00Z" }),
+  );
+  const client = createClient({ project: "p", fetch: fn });
+  await client.auth.login("sara@example.com", "old-password");
+  const s = await client.auth.changePassword("old-password", "new-password");
+
+  const call = calls.find((c) => c.url.endsWith("/auth/password"));
+  assert.equal(new Headers(call.headers).get("Authorization"), "Bearer a1");
+  assert.deepEqual(JSON.parse(call.body), { current_password: "old-password", new_password: "new-password" });
+  assert.equal(s.refreshToken, "r2");
+  assert.equal(client.auth.session.accessToken, "a2");
+  assert.equal(client.auth.session.refreshToken, "r2");
+  assert.equal(client.auth.session.user.email, "sara@example.com");
+});
+
 test("sign-in by SMS code: send, then verify stores the session", async () => {
   const { fn, calls } = mockFetch((url) =>
     url.endsWith("/auth/otp/send")
